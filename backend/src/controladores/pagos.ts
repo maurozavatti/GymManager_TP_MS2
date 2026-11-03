@@ -6,10 +6,16 @@ import { ErrorHTTP, responder, leerJSON, texto, identificador, entero, fechaArge
 
 const tiposPago = ['INSCRIPCION', 'CUOTA'] as const
 
+const estadosPago = {
+    pendiente: 'PENDIENTE',
+    vencido: 'VENCIDO',
+    pagado: 'PAGADO',
+} as const
+
 async function promoverVencidos(db: Db): Promise<void> {
     await db.collection('pagos').updateMany(
-        { estado: 'PENDIENTE', fechaVencimiento: { $lt: new Date() } },
-        { $set: { estado: 'VENCIDO' } },
+        { estado: estadosPago.pendiente, fechaVencimiento: { $lt: new Date() } },
+        { $set: { estado: estadosPago.vencido } },
     )
 }
 
@@ -50,7 +56,7 @@ async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: 
         await db.collection('pagos').insertOne({
             clienteId, tipo, monto, observaciones,
             fechaPago: new Date(),
-            estado: 'PAGADO',
+            estado: estadosPago.pagado,
             ...(fechaVencimiento ? { fechaVencimiento } : {}),
         })
         responder(respuesta, 201, { mensaje: 'Pago registrado correctamente.' })
@@ -61,7 +67,7 @@ async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: 
     await db.collection('pagos').insertOne({
         clienteId, tipo, monto, observaciones, fechaVencimiento,
         fechaPago: null,
-        estado: 'PENDIENTE',
+        estado: estadosPago.pendiente,
     })
     responder(respuesta, 201, { mensaje: 'Cuota pendiente registrada correctamente.' })
 }
@@ -69,8 +75,8 @@ async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: 
 async function marcarPagado(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
     const id = identificador(datos.pagoId)
     const resultado = await db.collection('pagos').updateOne(
-        { _id: id, estado: { $in: ['PENDIENTE', 'VENCIDO'] } },
-        { $set: { estado: 'PAGADO', fechaPago: new Date() } },
+        { _id: id, estado: { $in: [estadosPago.pendiente, estadosPago.vencido] }},
+        { $set: { estado: estadosPago.pagado, fechaPago: new Date() } },
     )
     if (!resultado.matchedCount) throw new ErrorHTTP(409, 'El pago no existe o ya estaba registrado como pagado.')
     responder(respuesta, 200, { mensaje: 'Pago marcado como pagado.' })
