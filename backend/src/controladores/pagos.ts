@@ -2,22 +2,10 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Db, ObjectId } from 'mongodb'
 import { conectarDB } from '../db.ts'
 import { obtenerUsuarioSesion } from './sesion.ts'
+import { estadosPago, promoverVencidos } from '../servicios/pagos.ts'
 import { ErrorHTTP, responder, leerJSON, texto, identificador, entero, fechaArgentina } from '../compartidos/http.ts'
 
 const tiposPago = ['INSCRIPCION', 'CUOTA'] as const
-
-const estadosPago = {
-    pendiente: 'PENDIENTE',
-    vencido: 'VENCIDO',
-    pagado: 'PAGADO',
-} as const
-
-async function promoverVencidos(db: Db): Promise<void> {
-    await db.collection('pagos').updateMany(
-        { estado: estadosPago.pendiente, fechaVencimiento: { $lt: new Date() } },
-        { $set: { estado: estadosPago.vencido } },
-    )
-}
 
 async function listarPagos(db: Db, datos: URLSearchParams, respuesta: ServerResponse): Promise<void> {
     await promoverVencidos(db)
