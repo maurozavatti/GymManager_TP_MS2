@@ -196,7 +196,7 @@ test('Una ruta inexistente da 404', async () => {
 })
 
 // ---------- CASO 13 (bug conocido S-P1) ----------
-test('ADMIN con rol en lista accede a pagos', { todo: 'Bug S-P1: rol en formato lista da 403' }, async () => {
+test('ADMIN con rol en lista accede a pagos', async () => {
   const { gestor } = crearGestor({ id: 'c'.repeat(24), rol: ['ADMIN', 'ENTRENADOR'] })
   const res = respuestaFalsa()
   await gestor(pedido('GET', '/api/pagos'), res)

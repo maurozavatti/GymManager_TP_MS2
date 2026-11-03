@@ -2,6 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Db, ObjectId } from 'mongodb'
 import { conectarDB } from '../db.ts'
 import { obtenerUsuarioSesion } from './sesion.ts'
+import { tieneRol } from '../servicios/permisos.ts'
 import { estadosPago, promoverVencidos } from '../servicios/pagos.ts'
 import { ErrorHTTP, responder, leerJSON, texto, identificador, entero, fechaArgentina } from '../compartidos/http.ts'
 
@@ -94,8 +95,7 @@ export function crearGestorPagos(dependencias = {
         try {
             const personal = await dependencias.usuario(solicitud)
             if (!personal) throw new ErrorHTTP(401, 'Iniciá sesión para continuar.')
-            if (personal.rol !== 'ADMIN') throw new ErrorHTTP(403, 'Esta sección requiere permisos de administrador.')
-
+            if (!tieneRol(personal, ['ADMIN'])) throw new ErrorHTTP(403, 'Esta sección requiere permisos de administrador.')
             const url = new URL(solicitud.url ?? '/', 'http://localhost')
             const ruta = url.pathname
             const db = await dependencias.conectar()
