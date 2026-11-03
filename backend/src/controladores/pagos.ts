@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Db } from 'mongodb'
+import type { Db, ObjectId } from 'mongodb'
 import { conectarDB } from '../db.ts'
 import { obtenerUsuarioSesion } from './sesion.ts'
 import { ErrorHTTP, responder, leerJSON, texto, identificador, entero, fechaArgentina } from '../compartidos/http.ts'
@@ -38,7 +38,16 @@ async function listarPagos(db: Db, datos: URLSearchParams, respuesta: ServerResp
     })
 }
 
-async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
+type DatosPago = {
+    clienteId: ObjectId
+    tipo: string
+    monto: number
+    observaciones: string
+    fechaVencimiento: Date | undefined
+    pagado: boolean
+}
+
+function leerDatosPago(datos: Record<string, unknown>): DatosPago {
     const clienteId = identificador(datos.clienteId)
     const tipo = texto(datos, 'tipo', 20, true)
     if (!tiposPago.includes(tipo as typeof tiposPago[number]))
@@ -47,29 +56,37 @@ async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: 
     const observaciones = texto(datos, 'observaciones', 500)
     const vencimientoTexto = texto(datos, 'fechaVencimiento', 10)
     const fechaVencimiento = vencimientoTexto ? fechaArgentina(vencimientoTexto, 'fechaVencimiento', true) : undefined
-    const pagado = datos.pagado === true
+    return { clienteId, tipo, monto, observaciones, fechaVencimiento, pagado: datos.pagado === true }
+}
 
-    const cliente = await db.collection('clientes').findOne({ _id: clienteId, activo: true })
-    if (!cliente) throw new ErrorHTTP(404, 'El cliente no existe o está inactivo.')
-
+function armarDocumentoPago(pago: DatosPago) {
+    const { clienteId, tipo, monto, observaciones, fechaVencimiento, pagado } = pago
     if (pagado) {
-        await db.collection('pagos').insertOne({
+        return {
             clienteId, tipo, monto, observaciones,
             fechaPago: new Date(),
             estado: estadosPago.pagado,
             ...(fechaVencimiento ? { fechaVencimiento } : {}),
-        })
-        responder(respuesta, 201, { mensaje: 'Pago registrado correctamente.' })
-        return
+        }
     }
-
     if (!fechaVencimiento) throw new ErrorHTTP(400, 'Indicá la fecha de vencimiento de la cuota.', ['fechaVencimiento'])
-    await db.collection('pagos').insertOne({
+    return {
         clienteId, tipo, monto, observaciones, fechaVencimiento,
         fechaPago: null,
         estado: estadosPago.pendiente,
+    }
+}
+
+async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
+    const pago = leerDatosPago(datos)
+
+    const cliente = await db.collection('clientes').findOne({ _id: pago.clienteId, activo: true })
+    if (!cliente) throw new ErrorHTTP(404, 'El cliente no existe o está inactivo.')
+
+    await db.collection('pagos').insertOne(armarDocumentoPago(pago))
+    responder(respuesta, 201, {
+        mensaje: pago.pagado ? 'Pago registrado correctamente.' : 'Cuota pendiente registrada correctamente.',
     })
-    responder(respuesta, 201, { mensaje: 'Cuota pendiente registrada correctamente.' })
 }
 
 async function marcarPagado(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
