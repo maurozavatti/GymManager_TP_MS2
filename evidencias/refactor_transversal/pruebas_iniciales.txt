@@ -1,0 +1,31 @@
+backend> npm ci
+
+added 17 packages, and audited 18 packages in 3s
+
+found 0 vulnerabilities
+
+backend> npm test
+
+> gymmanager-backend@0.1.0 test
+> npm run build && node --test pruebas/permisos.test.mjs
+
+
+> gymmanager-backend@0.1.0 build
+> tsc
+
+✔ Sin cookie rechaza con 401 sin consultar la base (0.6247ms)
+✔ Una cookie mal formada rechaza con 401 (0.1093ms)
+✔ Una sesion inexistente rechaza con 401 (0.3766ms)
+✔ Una cuenta inactiva rechaza con 401 (0.1338ms)
+✔ ADMIN puede acceder a una operacion de ADMIN (0.1496ms)
+✔ ENTRENADOR puede acceder cuando su rol esta permitido (0.0816ms)
+✔ USUARIO recibe 403 en una operacion exclusiva de ADMIN (0.0923ms)
+✔ Un fallo de conexion se propaga sin convertirlo en 401 (0.0895ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 187.5499

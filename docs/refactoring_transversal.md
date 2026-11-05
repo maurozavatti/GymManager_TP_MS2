@@ -22,4 +22,19 @@ Se busca detectar problemas en el código, aplicar principios SOLID y buenas pr�
 
 Para realizar el trabajo se clonó el repositorio grupal `GymManager_TP_MS2` y se creó la rama `refactor/transversal`. De esta manera, los cambios pueden desarrollarse por separado sin afectar directamente la rama principal (`main`).
 
+### 1.3 Verificación inicial
+
+Antes de realizar modificaciones en el código, se instalaron las dependencias del backend mediante `npm ci` y se ejecutó `npm test` para comprobar el funcionamiento de las pruebas existentes.
+
+La compilación de TypeScript finalizó correctamente y se ejecutaron las 8 pruebas del archivo `permisos.test.mjs`, con los siguientes resultados:
+
+- Pruebas ejecutadas: 8.
+- Pruebas aprobadas: 8.
+- Pruebas fallidas: 0.
+- Pruebas pendientes: 0.
+
+La instalación de dependencias también informó 0 vulnerabilidades conocidas.
+
+Estos resultados se tomarán como referencia para las próximas modificaciones. Las pruebas actuales cubren distintos casos de autenticación y autorización, pero todavía será necesario revisar la cobertura de las utilidades HTTP y del manejo de errores.
+
 Las modificaciones se documentarán y guardarán en commits individuales para que sea más sencillo revisar los cambios e integrarlos posteriormente.
