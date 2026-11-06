@@ -134,3 +134,27 @@ Aunque `permisos.ts` ya proporciona la función `tieneRol`, algunos controladore
 Las mejoras propuestas buscan reducir la duplicación de código, separar responsabilidades y facilitar el mantenimiento del backend.
 
 Antes de aplicar los refactorings se prepararán pruebas de caracterización para comprobar el comportamiento actual. Después de cada modificación se volverán a ejecutar las pruebas para verificar que las funcionalidades existentes sigan funcionando correctamente.
+
+
+## 4. Pruebas de caracterización
+
+### 4.1. Pruebas antes del refactoring
+
+Antes de modificar el código, se incorporó el archivo `backend/pruebas/http.test.mjs` para verificar el comportamiento actual de las funciones de `http.ts`.
+
+Se agregaron 8 pruebas que comprueban:
+
+- La información almacenada en `ErrorHTTP`.
+- El estado y el formato JSON de las respuestas generadas por `responder`.
+- La lectura de JSON válido y el rechazo de contenido incorrecto en `leerJSON`.
+- Las validaciones realizadas por `texto`, `entero`, `identificador` y `fechaArgentina`.
+
+También se actualizó el comando `npm test` para ejecutar estas pruebas junto con las 8 pruebas existentes de permisos.
+
+**Resultado:** 16 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores.
+
+Estas pruebas servirán para comprobar que los cambios posteriores no alteren el comportamiento esperado.
+
+**Evidencias:**
+- `evidencias/refactor_transversal/pruebas_http_antes.txt`
+- `evidencias/refactor_transversal/pruebas_http_antes.png`
