@@ -20,6 +20,31 @@ const idConfiguracion = new ObjectId('000000000000000000000001')
 const configuracionInicial: ConfiguracionAgenda = { franjas: [{ inicio: '09:00', fin: '21:00' }], capacidad: 5, trabajos: [] }
 
 const minutos = (hora: string) => Number(hora.slice(0, 2)) * 60 + Number(hora.slice(3))
+function validarFranjas(valores: unknown): { inicio: string; fin: string }[] {
+    if (!Array.isArray(valores) || valores.length < 1 || valores.length > 4)
+        throw new ErrorHTTP(400, 'Indicá entre una y cuatro franjas de apertura.')
+
+    const franjas = valores.map((valor: unknown) => {
+        if (!valor || typeof valor !== 'object')
+            throw new ErrorHTTP(400, 'Revisá las franjas de apertura.')
+
+        const campos = valor as Record<string, unknown>
+        const inicio = texto(campos, 'inicio', 5, true)
+        const fin = texto(campos, 'fin', 5, true)
+
+        validarHorario(inicio, fin)
+
+        if ((minutos(fin) - minutos(inicio)) % 60 !== 0)
+            throw new ErrorHTTP(400, 'Cada franja debe contener un número entero de horas.')
+
+        return { inicio, fin }
+    }).sort((a, b) => a.inicio.localeCompare(b.inicio))
+
+    if (franjas.some((f, i) => i > 0 && f.inicio < franjas[i - 1]!.fin))
+        throw new ErrorHTTP(400, 'Las franjas de apertura no pueden superponerse.')
+
+    return franjas
+}
 const hora = (valor: number) => `${String(Math.floor(valor / 60)).padStart(2, '0')}:${String(valor % 60).padStart(2, '0')}`
 
 function exigirTurnoPropio(personal: UsuarioSesion, entrenadorId: ObjectId): void {
@@ -168,19 +193,7 @@ async function generarAgenda(dependencias: Dependencias, datos: Record<string, u
         throw new ErrorHTTP(403, 'Solo el Administrador puede cambiar los horarios de apertura y el cupo por defecto.')
 
     const capacidad = entero(datos.capacidad, 'capacidad', 1, 100)
-    if (!Array.isArray(datos.franjas) || datos.franjas.length < 1 || datos.franjas.length > 4)
-        throw new ErrorHTTP(400, 'Indicá entre una y cuatro franjas de apertura.')
-    const franjas = datos.franjas.map((valor: unknown) => {
-        if (!valor || typeof valor !== 'object') throw new ErrorHTTP(400, 'Revisá las franjas de apertura.')
-        const campos = valor as Record<string, unknown>
-        const inicio = texto(campos, 'inicio', 5, true), fin = texto(campos, 'fin', 5, true)
-        validarHorario(inicio, fin)
-        if ((minutos(fin) - minutos(inicio)) % 60 !== 0)
-            throw new ErrorHTTP(400, 'Cada franja debe contener un número entero de horas.')
-        return { inicio, fin }
-    }).sort((a, b) => a.inicio.localeCompare(b.inicio))
-    if (franjas.some((f, i) => i > 0 && f.inicio < franjas[i - 1]!.fin))
-        throw new ErrorHTTP(400, 'Las franjas de apertura no pueden superponerse.')
+    const franjas = validarFranjas(datos.franjas)
 
     if (!Array.isArray(datos.trabajos) || !datos.trabajos.length || datos.trabajos.length > 50)
         throw new ErrorHTTP(400, 'Seleccioná los días de trabajo de al menos un entrenador.')

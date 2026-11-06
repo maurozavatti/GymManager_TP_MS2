@@ -214,3 +214,46 @@ test('Un error inesperado responde 500 sin exponer detalles internos', async () 
   })
 })
 
+test('No permite generar una agenda con franjas horarias superpuestas', async () => {
+  const usuario = {
+    id: entrenadorId.toHexString(),
+    rol: 'ADMIN',
+  }
+
+  const db = {
+    collection(nombre) {
+      if (nombre === 'configuracion') {
+        return {
+          async findOne() {
+            return null
+          },
+        }
+      }
+
+      throw new Error(`Colección inesperada: ${nombre}`)
+    },
+  }
+
+  const gestor = crearGestorTurnos({
+    conectar: async () => db,
+    usuario: async () => usuario,
+    transaccion: async () => {},
+  })
+
+  const res = respuestaFalsa()
+
+  await gestor(pedido('POST', '/api/turnos/generar', {
+    capacidad: 5,
+    franjas: [
+      { inicio: '09:00', fin: '12:00' },
+      { inicio: '11:00', fin: '13:00' },
+    ],
+    trabajos: [],
+  }), res)
+
+  assert.equal(res.estado, 400)
+  assert.equal(
+    res.cuerpo.mensaje,
+    'Las franjas de apertura no pueden superponerse.',
+  )
+})
