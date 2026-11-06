@@ -6,6 +6,7 @@ import type { UsuarioSesion } from './sesion.ts'
 import { ErrorHTTP, responder } from '../compartidos/http.ts'
 import { diasSemana } from '../compartidos/reglas.ts'
 import type { Turno } from '../compartidos/modelos.ts'
+import { manejarError } from '../compartidos/manejo_errores.ts'
 
 type Dependencias = {
     conectar: typeof conectarDB
@@ -114,11 +115,7 @@ export function crearGestorResumen(dependencias: Dependencias = {
             const db = await dependencias.conectar()
             await consultarResumen(db, personal, respuesta)
         } catch (error) {
-            if (error instanceof ErrorHTTP) {
-                responder(respuesta, error.estado, { mensaje: error.message, campos: error.campos })
-                return
-            }
-            responder(respuesta, 500, { mensaje: 'No pudimos completar la operación. Intentá nuevamente.' })
+            manejarError(respuesta, error)
         }
     }
 }

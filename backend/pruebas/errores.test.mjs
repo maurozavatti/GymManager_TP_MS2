@@ -75,3 +75,35 @@ test('resumen responde 500 sin exponer errores internos', async () => {
     !JSON.stringify(resultado().cuerpo).includes('Detalle interno')
   )
 })
+
+test('resumen registra los errores inesperados', async () => {
+  const { respuesta } = simularRespuesta()
+  const fallo = new Error('Falla interna simulada')
+  const registros = []
+
+  const gestionar = crearGestorResumen({
+    usuario: async () => ({ rol: 'ADMIN' }),
+    conectar: async () => {
+      throw fallo
+    }
+  })
+
+  const consoleErrorOriginal = console.error
+  console.error = (...argumentos) => {
+    registros.push(argumentos)
+  }
+
+  try {
+    await gestionar(
+      { method: 'GET', url: '/api/resumen' },
+      respuesta
+    )
+  } finally {
+    console.error = consoleErrorOriginal
+  }
+
+  assert.ok(
+    registros.some(argumentos => argumentos.includes(fallo)),
+    'El error inesperado deberia registrarse'
+  )
+})

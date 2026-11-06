@@ -205,3 +205,34 @@ Después del refactoring se ejecutó `npm test`, con 18 pruebas aprobadas, ningu
 - Antes: `evidencias/refactor_transversal/pruebas_errores_antes.txt`
 - Después: `evidencias/refactor_transversal/pruebas_http_despues.txt`
 - Captura: `evidencias/refactor_transversal/pruebas_http_despues.png`
+
+### 5.2. R-T02 — Centralización del manejo de errores (S-T01 y S-T02)
+
+**Problema detectado:**
+Los controladores repetían bloques `catch` con lógica similar para responder ante excepciones. Además, los errores inesperados devolvían un código 500 sin registrar la causa original, lo que dificultaba identificar problemas durante el mantenimiento.
+
+**Refactoring aplicado:**
+Se creó `backend/src/compartidos/manejo_errores.ts`, con la función `manejarError`, que centraliza el tratamiento de excepciones.
+
+La función distingue entre:
+
+- Errores HTTP conocidos: conserva el código de estado, mensaje y campos.
+- Errores inesperados: registra el error original mediante `console.error` y devuelve una respuesta 500 con un mensaje genérico.
+
+Como primera aplicación, se reemplazó el bloque `catch` de `backend/src/controladores/resumen.ts` por una llamada a `manejarError`.
+
+**Mejora obtenida:**
+Se redujo la duplicación de lógica en el controlador modificado y se incorporó el registro de errores inesperados sin exponer información interna al usuario.
+
+**Verificación:**
+Se agregó una prueba que inicialmente fallaba porque el controlador no registraba los errores inesperados.
+
+Después de aplicar el cambio, se ejecutó `npm test` con 19 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores. Las pruebas utilizan dependencias simuladas y no requieren conexión a MongoDB.
+
+**Estado:**
+S-T01 y S-T02 están corregidos parcialmente. El manejador compartido ya funciona en `resumen.ts`, pero todavía queda pendiente coordinar su aplicación en otros controladores.
+
+**Evidencias:**
+- `evidencias/refactor_transversal/pruebas_errores_antes.txt`
+- `evidencias/refactor_transversal/pruebas_manejo_errores_despues.txt`
+- `evidencias/refactor_transversal/pruebas_manejo_errores_despues.png`
