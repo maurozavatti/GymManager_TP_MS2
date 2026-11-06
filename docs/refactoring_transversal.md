@@ -158,3 +158,25 @@ Estas pruebas servirán para comprobar que los cambios posteriores no alteren el
 **Evidencias:**
 - `evidencias/refactor_transversal/pruebas_http_antes.txt`
 - `evidencias/refactor_transversal/pruebas_http_antes.png`
+
+
+### 4.2. Pruebas del manejo de errores
+
+Se incorporó `backend/pruebas/errores.test.mjs` para verificar cómo responde el sistema ante errores conocidos e inesperados.
+
+Se agregaron 2 pruebas sobre el controlador de resumen:
+
+- Sin una sesión válida, devuelve un error 401.
+- Ante una falla interna, devuelve un error 500 sin exponer detalles técnicos al usuario.
+
+Las pruebas utilizan dependencias simuladas, por lo que no requieren conexión a MongoDB.
+
+También se actualizó `npm test` para incluir este archivo.
+
+**Resultado:** 18 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores.
+
+Estas pruebas permitirán verificar que el refactoring del manejo de errores mantenga las respuestas esperadas. El registro de errores internos se incorporará como parte de la mejora S-T02.
+
+**Evidencias:**
+- `evidencias/refactor_transversal/pruebas_errores_antes.txt`
+- `evidencias/refactor_transversal/pruebas_errores_antes.png`
