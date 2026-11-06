@@ -389,3 +389,5 @@ Después:
 - `evidencias/refactor_transversal/pruebas_pagos_errores_despues.png`
 
 **Estado:** S-P3 y S-P9 corregidos en el controlador de Pagos.
+
+**Commit del refactoring:** `6600a07` — `refactor: centralizar manejo de errores en pagos (S-P3 y S-P9)`.
