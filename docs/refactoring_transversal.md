@@ -135,7 +135,6 @@ Las mejoras propuestas buscan reducir la duplicación de código, separar respon
 
 Antes de aplicar los refactorings se prepararán pruebas de caracterización para comprobar el comportamiento actual. Después de cada modificación se volverán a ejecutar las pruebas para verificar que las funcionalidades existentes sigan funcionando correctamente.
 
-
 ## 4. Pruebas de caracterización
 
 ### 4.1. Pruebas antes del refactoring
@@ -159,7 +158,6 @@ Estas pruebas servirán para comprobar que los cambios posteriores no alteren el
 - `evidencias/refactor_transversal/pruebas_http_antes.txt`
 - `evidencias/refactor_transversal/pruebas_http_antes.png`
 
-
 ### 4.2. Pruebas del manejo de errores
 
 Se incorporó `backend/pruebas/errores.test.mjs` para verificar cómo responde el sistema ante errores conocidos e inesperados.
@@ -180,3 +178,30 @@ Estas pruebas permitirán verificar que el refactoring del manejo de errores man
 **Evidencias:**
 - `evidencias/refactor_transversal/pruebas_errores_antes.txt`
 - `evidencias/refactor_transversal/pruebas_errores_antes.png`
+
+## 5. Refactorings realizados
+
+### 5.1. R-T01 — Separación de responsabilidades en http.ts (S-T03)
+
+**Problema detectado:**
+El archivo `http.ts` concentraba funciones HTTP, validaciones de datos y la definición de `ErrorHTTP`, mezclando responsabilidades diferentes.
+
+**Refactoring aplicado:**
+Se reorganizó el código en tres archivos:
+
+- `errores.ts`: contiene la clase `ErrorHTTP`.
+- `validaciones.ts`: contiene `texto`, `entero`, `identificador` y `fechaArgentina`.
+- `http.ts`: conserva `responder` y `leerJSON`, además de las exportaciones necesarias para mantener la compatibilidad con los controladores existentes.
+
+Las funciones se trasladaron sin modificar su comportamiento.
+
+**Mejora obtenida:**
+Se separaron responsabilidades siguiendo el principio SRP de SOLID. Esto facilita el mantenimiento y permite modificar las validaciones sin intervenir directamente en las funciones HTTP.
+
+**Verificación:**
+Después del refactoring se ejecutó `npm test`, con 18 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores.
+
+**Evidencias:**
+- Antes: `evidencias/refactor_transversal/pruebas_errores_antes.txt`
+- Después: `evidencias/refactor_transversal/pruebas_http_despues.txt`
+- Captura: `evidencias/refactor_transversal/pruebas_http_despues.png`
