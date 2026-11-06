@@ -193,3 +193,24 @@ test('Un usuario sin permisos recibe 403', async () => {
   assert.equal(res.estado, 403)
   assert.equal(llamadas.updateOne.length, 0)
 })
+test('Un error inesperado responde 500 sin exponer detalles internos', async () => {
+  const usuario = { id: entrenadorId.toHexString(), rol: 'ADMIN' }
+
+  const gestor = crearGestorTurnos({
+    conectar: async () => {
+      throw new Error('Detalle privado de la conexión')
+    },
+    usuario: async () => usuario,
+    transaccion: async () => {},
+  })
+
+  const res = respuestaFalsa()
+
+  await gestor(pedido('GET', '/api/turnos'), res)
+
+  assert.equal(res.estado, 500)
+  assert.deepEqual(res.cuerpo, {
+    mensaje: 'No pudimos completar la operación. Intentá nuevamente.',
+  })
+})
+
