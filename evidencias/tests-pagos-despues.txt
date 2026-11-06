@@ -1,0 +1,37 @@
+﻿
+> gymmanager-backend@0.1.0 test
+> npm run build && node --test pruebas/permisos.test.mjs pruebas/pagos.test.mjs
+
+
+> gymmanager-backend@0.1.0 build
+> tsc
+
+Ô£ö Sin sesion rechaza con 401 (0.7505ms)
+Ô£ö ENTRENADOR recibe 403 en pagos (0.1707ms)
+Ô£ö ADMIN registra un pago ya pagado (1.826ms)
+Ô£ö ADMIN registra una cuota pendiente con vencimiento (11.9352ms)
+Ô£ö Una cuota pendiente sin vencimiento da 400 (0.9674ms)
+Ô£ö Un tipo de pago invalido da 400 (0.5784ms)
+Ô£ö Un monto invalido da 400 (1.1955ms)
+Ô£ö Un cliente inexistente da 404 (0.2904ms)
+Ô£ö Marcar como pagado un pago pendiente da 200 (0.381ms)
+Ô£ö Marcar como pagado uno ya pagado da 409 (0.2862ms)
+Ô£ö Listar pagos responde 200 y actualiza los vencidos (efecto S-P2) (0.2034ms)
+Ô£ö Una ruta inexistente da 404 (0.1978ms)
+Ô£ö ADMIN con rol en lista accede a pagos (0.1026ms)
+Ô£ö Sin cookie rechaza con 401 sin consultar la base (0.7513ms)
+Ô£ö Una cookie mal formada rechaza con 401 (0.1447ms)
+Ô£ö Una sesion inexistente rechaza con 401 (0.4424ms)
+Ô£ö Una cuenta inactiva rechaza con 401 (0.1734ms)
+Ô£ö ADMIN puede acceder a una operacion de ADMIN (0.2224ms)
+Ô£ö ENTRENADOR puede acceder cuando su rol esta permitido (0.1011ms)
+Ô£ö USUARIO recibe 403 en una operacion exclusiva de ADMIN (0.1216ms)
+Ô£ö Un fallo de conexion se propaga sin convertirlo en 401 (0.1245ms)
+Ôä╣ tests 21
+Ôä╣ suites 0
+Ôä╣ pass 21
+Ôä╣ fail 0
+Ôä╣ cancelled 0
+Ôä╣ skipped 0
+Ôä╣ todo 0
+Ôä╣ duration_ms 250.9941
