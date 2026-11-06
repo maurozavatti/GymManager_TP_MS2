@@ -5,6 +5,7 @@ import { obtenerUsuarioSesion } from './sesion.ts'
 import { tieneRol } from '../servicios/permisos.ts'
 import { estadosPago, promoverVencidos } from '../servicios/pagos.ts'
 import { ErrorHTTP, responder, leerJSON, texto, identificador, entero, fechaArgentina } from '../compartidos/http.ts'
+import { manejarError } from '../compartidos/manejo_errores.ts'
 
 const tiposPago = ['INSCRIPCION', 'CUOTA'] as const
 
@@ -119,11 +120,7 @@ export function crearGestorPagos(dependencias = {
 
             throw new ErrorHTTP(404, 'Ruta no encontrada.')
         } catch (error) {
-            if (error instanceof ErrorHTTP) {
-                responder(respuesta, error.estado, { mensaje: error.message, campos: error.campos })
-                return
-            }
-            responder(respuesta, 500, { mensaje: 'No pudimos completar la operación. Intentá nuevamente.' })
+            manejarError(respuesta, error)
         }
     }
 }
