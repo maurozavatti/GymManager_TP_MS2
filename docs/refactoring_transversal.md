@@ -106,3 +106,31 @@ Estos resultados se tomarán como referencia para las próximas modificaciones. 
 **Prioridad:** Alta.
 
 **Mejora propuesta:** Utilizar de manera consistente la función `tieneRol` para comprobar los permisos, evitando duplicar las comparaciones de roles en los controladores.
+
+## 3. Análisis de SOLID y Clean Code
+
+### 3.1 Relación con los problemas detectados
+
+A partir del diagnóstico realizado, se identificaron oportunidades de mejora relacionadas con los principios SOLID y las buenas prácticas de Clean Code.
+
+**S-T01 — Manejo de errores duplicado (DRY)**
+
+La repetición de bloques `catch` en distintos controladores va en contra del principio DRY (*Don't Repeat Yourself*). Centralizar el manejo común de errores permitiría reducir la duplicación y facilitar el mantenimiento.
+
+**S-T02 — Errores inesperados sin registrar (Clean Code)**
+
+Los controladores devuelven mensajes genéricos cuando ocurre un error inesperado, pero no registran su causa. Incorporar un registro controlado de estos errores facilitaría el diagnóstico de fallas, sin exponer información técnica sensible al usuario.
+
+**S-T03 — Responsabilidades mezcladas en http.ts (SRP)**
+
+El archivo `http.ts` reúne funciones HTTP y validaciones de distintos tipos de datos. Separar estas responsabilidades permitiría mejorar la cohesión del código y facilitar modificaciones futuras, siguiendo el principio de responsabilidad única (SRP).
+
+**S-T04 — Validaciones de roles inconsistentes (DRY y reutilización)**
+
+Aunque `permisos.ts` ya proporciona la función `tieneRol`, algunos controladores realizan comprobaciones directas de roles. Reutilizar la función existente permitiría mantener un criterio de autorización consistente y evitar la duplicación de reglas.
+
+### 3.2 Objetivo de las mejoras
+
+Las mejoras propuestas buscan reducir la duplicación de código, separar responsabilidades y facilitar el mantenimiento del backend.
+
+Antes de aplicar los refactorings se prepararán pruebas de caracterización para comprobar el comportamiento actual. Después de cada modificación se volverán a ejecutar las pruebas para verificar que las funcionalidades existentes sigan funcionando correctamente.
