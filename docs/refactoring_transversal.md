@@ -179,7 +179,7 @@ Estas pruebas permitirán verificar que el refactoring del manejo de errores man
 - `evidencias/refactor_transversal/pruebas_errores_antes.txt`
 - `evidencias/refactor_transversal/pruebas_errores_antes.png`
 
-## 5. Refactorings realizados
+## 5. Refactorings y correcciones realizadas
 
 ### 5.1. R-T01 — Separación de responsabilidades en http.ts (S-T03)
 
@@ -202,7 +202,7 @@ Se separaron responsabilidades siguiendo el principio SRP de SOLID. Esto facilit
 Después del refactoring se ejecutó `npm test`, con 18 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores.
 
 **Evidencias:**
-- Antes: `evidencias/refactor_transversal/pruebas_errores_antes.txt`
+- Antes: `evidencias/refactor_transversal/pruebas_http_antes.txt`
 - Después: `evidencias/refactor_transversal/pruebas_http_despues.txt`
 - Captura: `evidencias/refactor_transversal/pruebas_http_despues.png`
 
@@ -230,7 +230,7 @@ Se agregó una prueba que inicialmente fallaba porque el controlador no registra
 Después de aplicar el cambio, se ejecutó `npm test` con 19 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores. Las pruebas utilizan dependencias simuladas y no requieren conexión a MongoDB.
 
 **Estado:**
-S-T01 y S-T02 están corregidos parcialmente. El manejador compartido ya funciona en `resumen.ts`, pero todavía queda pendiente coordinar su aplicación en otros controladores.
+S-T01 y S-T02 fueron abordados inicialmente en `resumen.ts` y posteriormente en `pagos.ts`, como se documenta en la sección 6.3. El manejo centralizado de errores ya funciona en ambos controladores. Queda pendiente revisar su aplicación en otros módulos, especialmente Turnos, durante la integración grupal.
 
 **Evidencias:**
 - `evidencias/refactor_transversal/pruebas_errores_antes.txt`
@@ -312,24 +312,6 @@ Después de resolver el conflicto, se ejecutó `npm test` para comprobar la comp
 
 - `evidencias/refactor_transversal/pruebas_integracion_pagos_36.txt`
 - `evidencias/refactor_transversal/pruebas_integracion_pagos_36.png`
-
-### 6.3. Diagnóstico adicional: S-P3 y S-P9
-
-Durante la revisión del controlador `pagos.ts` se observó que conserva un bloque `catch` con lógica de respuesta HTTP repetida y que no registra los errores inesperados.
-
-Se incorporó una prueba de caracterización en `errores.test.mjs` para comprobar el registro de errores internos.
-
-**Resultado previo a la corrección:**
-
-- Pruebas ejecutadas: 37.
-- Pruebas aprobadas: 36.
-- Pruebas fallidas: 1 (fallo esperado).
-
-La prueba fallida demuestra que el error inesperado no queda registrado.
-
-**Estado:** Pendiente de coordinación con Mauro para determinar quién integrará `manejo_errores.ts` en el controlador de Pagos.
-
-No se ha realizado todavía la corrección de S-P3 y S-P9.
 
 ### 6.3. R-T04 — Centralización del manejo de errores en Pagos (S-P3 y S-P9)
 
