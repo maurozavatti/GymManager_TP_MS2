@@ -206,6 +206,8 @@ Después del refactoring se ejecutó `npm test`, con 18 pruebas aprobadas, ningu
 - Después: `evidencias/refactor_transversal/pruebas_http_despues.txt`
 - Captura: `evidencias/refactor_transversal/pruebas_http_despues.png`
 
+**Commit del refactoring:** `6619987` — `refactor: separar validaciones y errores de http`.
+
 ### 5.2. R-T02 — Centralización del manejo de errores (S-T01 y S-T02)
 
 **Problema detectado:**
@@ -236,6 +238,8 @@ S-T01 y S-T02 fueron abordados inicialmente en `resumen.ts` y posteriormente en 
 - `evidencias/refactor_transversal/pruebas_errores_antes.txt`
 - `evidencias/refactor_transversal/pruebas_manejo_errores_despues.txt`
 - `evidencias/refactor_transversal/pruebas_manejo_errores_despues.png`
+
+**Commit del refactoring:** `fbc0489` — `refactor: centralizar manejo de errores en resumen`.
 
 ### 5.3. F-T01 — Corrección de permisos con roles múltiples (S-T04)
 
@@ -277,6 +281,8 @@ S-T04 corregido en `resumen.ts`. Las autorizaciones de los demás controladores 
 - `evidencias/refactor_transversal/pruebas_roles_despues.png`
 - `evidencias/refactor_transversal/pruebas_roles_final.txt`
 - `evidencias/refactor_transversal/pruebas_roles_final.png`
+
+**Commit de la corrección funcional:** `7e2a358` — `fix: corregir permisos con roles multiples en resumen`.
 
 ## 6. Integración con el módulo de Pagos
 
@@ -373,3 +379,102 @@ Después:
 **Estado:** S-P3 y S-P9 corregidos en el controlador de Pagos.
 
 **Commit del refactoring:** `6600a07` — `refactor: centralizar manejo de errores en pagos (S-P3 y S-P9)`.
+
+### 6.4. Alcance de las mejoras transversales y pendientes de integración
+
+Durante el trabajo se desarrolló la función compartida `manejarError`, destinada a centralizar las respuestas ante errores HTTP conocidos e inesperados.
+
+**Controladores adaptados y verificados:**
+
+- `resumen.ts`: centralización del manejo de errores y registro de errores inesperados.
+- `pagos.ts`: aplicación de R-T04, corrigiendo S-P3 y S-P9.
+
+Ambos controladores cuentan con pruebas que verifican el tratamiento de errores inesperados.
+
+**Revisión de los demás controladores:**
+
+Se identificaron bloques de manejo de errores que todavía no utilizan la función compartida en:
+
+- `turnos.ts`
+- `clientes.ts`
+- `login.ts`
+- `register.ts`
+- `cuenta.ts`
+- `cuentas.ts`
+- `sesion.ts`
+
+Algunos de estos controladores tienen tratamientos particulares para errores de validación, conflictos de MongoDB o mensajes específicos. Por lo tanto, su adaptación requiere pruebas de caracterización para conservar las respuestas existentes.
+
+También se revisaron tratamientos específicos de excepciones en componentes de infraestructura, como el servidor, la conexión a MongoDB y el servicio de archivos. No se consideran reemplazos directos del manejador HTTP compartido.
+
+**Pendientes de autorización:**
+
+Durante la revisión también se observaron comprobaciones directas de roles en `clientes.ts` y `turnos.ts`.
+
+Estas comprobaciones deben revisarse para admitir correctamente las cuentas con múltiples roles. En Turnos es especialmente importante verificar las restricciones de acceso a turnos propios.
+
+**Estado de integración:**
+
+Las mejoras desarrolladas en los controladores Resumen y Pagos están implementadas y verificadas.
+
+La adaptación de los demás controladores y las correcciones de autorización pendientes deberán coordinarse durante la integración grupal, respetando las responsabilidades de cada integrante.
+
+No se considera que estos problemas estén corregidos hasta incorporar los cambios correspondientes y comprobarlos mediante pruebas.
+
+## 7. Resumen de pruebas antes y después
+
+Durante el trabajo se ejecutaron pruebas de caracterización y regresión antes y después de las modificaciones, con el objetivo de identificar defectos y comprobar que los cambios no afectaran las funcionalidades existentes.
+
+| Etapa | Pruebas aprobadas | Pruebas fallidas | Resultado |
+|---|---:|---:|---|
+| Estado inicial | 8 | 0 | Pruebas originales de permisos |
+| Caracterización HTTP | 16 | 0 | Nuevas pruebas de utilidades HTTP |
+| Caracterización de errores | 18 | 0 | Comportamiento previo verificado |
+| R-T01: separación de responsabilidades | 18 | 0 | Sin regresiones |
+| R-T02: manejo centralizado de errores | 19 | 0 | Registro de errores verificado |
+| F-T01: roles múltiples | 23 | 0 | Corrección y pruebas de seguridad |
+| Integración con Pagos | 36 | 0 | Compatibilidad entre ramas |
+| S-P3: prueba antes de corregir | 36 | 1 | Defecto reproducido |
+| R-T04: corrección de S-P3 y S-P9 | 37 | 0 | Corrección verificada |
+
+La cantidad de pruebas fue aumentando a medida que se incorporaron nuevos casos de caracterización y regresión.
+
+Los fallos provocados intencionalmente antes de las correcciones permitieron demostrar los problemas originales. Después de aplicar los cambios, las pruebas correspondientes finalizaron correctamente.
+
+Las pruebas utilizan dependencias simuladas y no requieren una conexión activa a MongoDB.
+
+**Resultado final:** 37 pruebas aprobadas, ninguna fallida y compilación de TypeScript correcta.
+
+Las evidencias de cada etapa se encuentran en `evidencias/refactor_transversal/` y están referenciadas en las secciones anteriores.
+
+## 8. Conclusión individual
+
+Mi participación en este trabajo se centró en mejorar componentes transversales del backend de Gym Manager, principalmente las utilidades HTTP, la gestión de permisos y el manejo de errores.
+
+El análisis permitió identificar problemas de duplicación de código, responsabilidades mezcladas y validaciones de roles inconsistentes. A partir de estos problemas se aplicaron refactorings orientados a mejorar la organización del código, facilitar su mantenimiento y reutilizar funcionalidades compartidas.
+
+Uno de los cambios más importantes fue la centralización del manejo de errores, que permitió reducir la duplicación en los controladores intervenidos y registrar los errores inesperados sin exponer información interna al usuario.
+
+También se corrigió un problema funcional relacionado con cuentas que poseen varios roles, incorporando pruebas para comprobar tanto el acceso autorizado como las restricciones de seguridad.
+
+La integración con el trabajo de Pagos permitió comprobar la compatibilidad de los refactorings realizados por distintos integrantes del equipo.
+
+Considero que el principal aprendizaje fue comprender la importancia de realizar cambios pequeños, respaldados por pruebas y commits individuales. Esto permitió detectar errores, verificar cada modificación y facilitar la integración del trabajo grupal.
+
+El resultado fue una mejora de la calidad interna del código, manteniendo las funcionalidades existentes y corrigiendo los defectos identificados en los componentes intervenidos.
+
+## 9. Declaración individual de uso de inteligencia artificial
+
+**Herramienta utilizada:** ChatGPT, de OpenAI.
+
+**Propósito:** Se utilizó como herramienta de asistencia durante el análisis de código, la identificación de posibles code smells, la planificación de refactorings, la elaboración de pruebas, la interpretación de errores de ejecución y la organización de la documentación técnica.
+
+**Grado de utilización:** La herramienta colaboró mediante explicaciones, propuestas de código, ejemplos de pruebas y sugerencias de mejora.
+
+Las propuestas fueron revisadas y adaptadas al proyecto. Las modificaciones se incorporaron de manera incremental y se comprobaron mediante la compilación del backend, la ejecución de pruebas y la revisión de los resultados obtenidos.
+
+También se utilizó como apoyo para resolver conflictos de integración entre ramas Git y documentar los cambios realizados.
+
+**Responsabilidad:** La selección de los cambios incorporados, su ejecución, las verificaciones y las decisiones finales sobre el trabajo estuvieron a mi cargo.
+
+El uso de inteligencia artificial se considera una asistencia al proceso de desarrollo y aprendizaje, no un reemplazo de la comprensión ni de la validación del código.
