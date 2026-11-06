@@ -9,8 +9,7 @@
   "build": "tsc",
   "start": "node --env-file-if-exists=.env dist/server.js",
   "check:db": "npm run build && node --env-file=.env dist/check-connection.js",
-  "test": "npm run build && node --test pruebas/permisos.test.mjs pruebas/http.test.mjs pruebas/errores.test.mjs pruebas/pagos.test.mjs"
-  },
+  "test": "npm run build && node --test pruebas/permisos.test.mjs pruebas/http.test.mjs pruebas/errores.test.mjs pruebas/pagos.test.mjs pruebas/turnos.test.mjs"  },
   "devDependencies": {
     "@types/node": "^26.6.5",
     "typescript": "^7.0.2"
