@@ -1,18 +1,12 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
-import type { Db } from 'mongodb'
-import { ObjectId } from 'mongodb'
+import type { Db, ObjectId } from 'mongodb'
 import { conectarDB } from '../db.ts'
 import { obtenerUsuarioSesion } from './sesion.ts'
+import { tieneRol } from '../servicios/permisos.ts'
+import { estadosPago, promoverVencidos } from '../servicios/pagos.ts'
 import { ErrorHTTP, responder, leerJSON, texto, identificador, entero, fechaArgentina } from '../compartidos/http.ts'
 
 const tiposPago = ['INSCRIPCION', 'CUOTA'] as const
-
-async function promoverVencidos(db: Db): Promise<void> {
-    await db.collection('pagos').updateMany(
-        { estado: 'PENDIENTE', fechaVencimiento: { $lt: new Date() } },
-        { $set: { estado: 'VENCIDO' } },
-    )
-}
 
 async function listarPagos(db: Db, datos: URLSearchParams, respuesta: ServerResponse): Promise<void> {
     await promoverVencidos(db)
@@ -33,7 +27,16 @@ async function listarPagos(db: Db, datos: URLSearchParams, respuesta: ServerResp
     })
 }
 
-async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
+type DatosPago = {
+    clienteId: ObjectId
+    tipo: string
+    monto: number
+    observaciones: string
+    fechaVencimiento: Date | undefined
+    pagado: boolean
+}
+
+function leerDatosPago(datos: Record<string, unknown>): DatosPago {
     const clienteId = identificador(datos.clienteId)
     const tipo = texto(datos, 'tipo', 20, true)
     if (!tiposPago.includes(tipo as typeof tiposPago[number]))
@@ -42,36 +45,44 @@ async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: 
     const observaciones = texto(datos, 'observaciones', 500)
     const vencimientoTexto = texto(datos, 'fechaVencimiento', 10)
     const fechaVencimiento = vencimientoTexto ? fechaArgentina(vencimientoTexto, 'fechaVencimiento', true) : undefined
-    const pagado = datos.pagado === true
+    return { clienteId, tipo, monto, observaciones, fechaVencimiento, pagado: datos.pagado === true }
+}
 
-    const cliente = await db.collection('clientes').findOne({ _id: clienteId, activo: true })
-    if (!cliente) throw new ErrorHTTP(404, 'El cliente no existe o está inactivo.')
-
+function armarDocumentoPago(pago: DatosPago) {
+    const { clienteId, tipo, monto, observaciones, fechaVencimiento, pagado } = pago
     if (pagado) {
-        await db.collection('pagos').insertOne({
+        return {
             clienteId, tipo, monto, observaciones,
             fechaPago: new Date(),
-            estado: 'PAGADO',
+            estado: estadosPago.pagado,
             ...(fechaVencimiento ? { fechaVencimiento } : {}),
-        })
-        responder(respuesta, 201, { mensaje: 'Pago registrado correctamente.' })
-        return
+        }
     }
-
     if (!fechaVencimiento) throw new ErrorHTTP(400, 'Indicá la fecha de vencimiento de la cuota.', ['fechaVencimiento'])
-    await db.collection('pagos').insertOne({
+    return {
         clienteId, tipo, monto, observaciones, fechaVencimiento,
         fechaPago: null,
-        estado: 'PENDIENTE',
+        estado: estadosPago.pendiente,
+    }
+}
+
+async function registrarPago(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
+    const pago = leerDatosPago(datos)
+
+    const cliente = await db.collection('clientes').findOne({ _id: pago.clienteId, activo: true })
+    if (!cliente) throw new ErrorHTTP(404, 'El cliente no existe o está inactivo.')
+
+    await db.collection('pagos').insertOne(armarDocumentoPago(pago))
+    responder(respuesta, 201, {
+        mensaje: pago.pagado ? 'Pago registrado correctamente.' : 'Cuota pendiente registrada correctamente.',
     })
-    responder(respuesta, 201, { mensaje: 'Cuota pendiente registrada correctamente.' })
 }
 
 async function marcarPagado(db: Db, datos: Record<string, unknown>, respuesta: ServerResponse): Promise<void> {
     const id = identificador(datos.pagoId)
     const resultado = await db.collection('pagos').updateOne(
-        { _id: id, estado: { $in: ['PENDIENTE', 'VENCIDO'] } },
-        { $set: { estado: 'PAGADO', fechaPago: new Date() } },
+        { _id: id, estado: { $in: [estadosPago.pendiente, estadosPago.vencido] }},
+        { $set: { estado: estadosPago.pagado, fechaPago: new Date() } },
     )
     if (!resultado.matchedCount) throw new ErrorHTTP(409, 'El pago no existe o ya estaba registrado como pagado.')
     responder(respuesta, 200, { mensaje: 'Pago marcado como pagado.' })
@@ -84,8 +95,7 @@ export function crearGestorPagos(dependencias = {
         try {
             const personal = await dependencias.usuario(solicitud)
             if (!personal) throw new ErrorHTTP(401, 'Iniciá sesión para continuar.')
-            if (personal.rol !== 'ADMIN') throw new ErrorHTTP(403, 'Esta sección requiere permisos de administrador.')
-
+            if (!tieneRol(personal, ['ADMIN'])) throw new ErrorHTTP(403, 'Esta sección requiere permisos de administrador.')
             const url = new URL(solicitud.url ?? '/', 'http://localhost')
             const ruta = url.pathname
             const db = await dependencias.conectar()

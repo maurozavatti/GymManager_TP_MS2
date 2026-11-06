@@ -1,0 +1,57 @@
+﻿
+> gymmanager-backend@0.1.0 test
+> npm run build && node --test pruebas/permisos.test.mjs pruebas/pagos.test.mjs
+
+
+> gymmanager-backend@0.1.0 build
+> tsc
+
+Ô£ö Sin sesion rechaza con 401 (0.7432ms)
+Ô£ö ENTRENADOR recibe 403 en pagos (0.125ms)
+Ô£ö ADMIN registra un pago ya pagado (1.7991ms)
+Ô£ö ADMIN registra una cuota pendiente con vencimiento (11.7342ms)
+Ô£ö Una cuota pendiente sin vencimiento da 400 (0.679ms)
+Ô£ö Un tipo de pago invalido da 400 (0.3974ms)
+Ô£ö Un monto invalido da 400 (1.0894ms)
+Ô£ö Un cliente inexistente da 404 (0.2747ms)
+Ô£ö Marcar como pagado un pago pendiente da 200 (0.3982ms)
+Ô£ö Marcar como pagado uno ya pagado da 409 (0.2849ms)
+Ô£ö Listar pagos responde 200 y actualiza los vencidos (efecto S-P2) (0.2055ms)
+Ô£ö Una ruta inexistente da 404 (0.1969ms)
+ÔÜá ADMIN con rol en lista accede a pagos (0.5324ms) # Bug S-P1: rol en formato lista da 403
+Ô£ö Sin cookie rechaza con 401 sin consultar la base (0.7592ms)
+Ô£ö Una cookie mal formada rechaza con 401 (0.1436ms)
+Ô£ö Una sesion inexistente rechaza con 401 (0.4445ms)
+Ô£ö Una cuenta inactiva rechaza con 401 (0.1769ms)
+Ô£ö ADMIN puede acceder a una operacion de ADMIN (0.2225ms)
+Ô£ö ENTRENADOR puede acceder cuando su rol esta permitido (0.0993ms)
+Ô£ö USUARIO recibe 403 en una operacion exclusiva de ADMIN (0.1226ms)
+Ô£ö Un fallo de conexion se propaga sin convertirlo en 401 (0.126ms)
+Ôä╣ tests 21
+Ôä╣ suites 0
+Ôä╣ pass 20
+Ôä╣ fail 0
+Ôä╣ cancelled 0
+Ôä╣ skipped 0
+Ôä╣ todo 1
+Ôä╣ duration_ms 238.8364
+
+Ô£û failing tests:
+
+test at pruebas\pagos.test.mjs:199:1
+ÔÜá ADMIN con rol en lista accede a pagos (0.5324ms) # Bug S-P1: rol en formato lista da 403
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 200
+  
+      at TestContext.<anonymous> (file:///C:/Mauro/TUPAD/CURSADO/Cuarto%20cuatrimestre/Metodologia%20de%20Sistemas%20II/TPI/GymManager_TP_MS2/backend/pruebas/pagos.test.mjs:203:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1125:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:787:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
