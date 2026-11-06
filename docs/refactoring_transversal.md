@@ -277,3 +277,115 @@ S-T04 corregido en `resumen.ts`. Las autorizaciones de los demás controladores 
 - `evidencias/refactor_transversal/pruebas_roles_despues.png`
 - `evidencias/refactor_transversal/pruebas_roles_final.txt`
 - `evidencias/refactor_transversal/pruebas_roles_final.png`
+
+## 6. Integración con el módulo de Pagos
+
+### 6.1. Integración de ramas
+
+El 06/11/2026 se incorporaron a `refactor/transversal` los cambios del módulo de Pagos previamente fusionados en `main`.
+
+**Commit de integración:** `f682fc6`
+
+Durante la integración se identificó un conflicto en `backend/package.json`, ya que ambas ramas habían modificado el script `npm test`.
+
+Se resolvió conservando las cuatro suites de pruebas:
+
+- `permisos.test.mjs`
+- `http.test.mjs`
+- `errores.test.mjs`
+- `pagos.test.mjs`
+
+No fue necesario modificar la lógica de negocio de Pagos ni los refactorings realizados por Mauro.
+
+### 6.2. Verificación de integración
+
+Después de resolver el conflicto, se ejecutó `npm test` para comprobar la compatibilidad entre ambos trabajos.
+
+**Resultados:**
+
+- Compilación TypeScript: correcta.
+- Pruebas ejecutadas: 36.
+- Pruebas aprobadas: 36.
+- Pruebas fallidas: 0.
+
+**Evidencias:**
+
+- `evidencias/refactor_transversal/pruebas_integracion_pagos_36.txt`
+- `evidencias/refactor_transversal/pruebas_integracion_pagos_36.png`
+
+### 6.3. Diagnóstico adicional: S-P3 y S-P9
+
+Durante la revisión del controlador `pagos.ts` se observó que conserva un bloque `catch` con lógica de respuesta HTTP repetida y que no registra los errores inesperados.
+
+Se incorporó una prueba de caracterización en `errores.test.mjs` para comprobar el registro de errores internos.
+
+**Resultado previo a la corrección:**
+
+- Pruebas ejecutadas: 37.
+- Pruebas aprobadas: 36.
+- Pruebas fallidas: 1 (fallo esperado).
+
+La prueba fallida demuestra que el error inesperado no queda registrado.
+
+**Estado:** Pendiente de coordinación con Mauro para determinar quién integrará `manejo_errores.ts` en el controlador de Pagos.
+
+No se ha realizado todavía la corrección de S-P3 y S-P9.
+
+### 6.3. R-T04 — Centralización del manejo de errores en Pagos (S-P3 y S-P9)
+
+**Problemas detectados:**
+
+Durante la integración con el módulo de Pagos se identificaron dos problemas:
+
+- **S-P3:** los errores inesperados devolvían HTTP 500, pero no se registraban en el servidor.
+- **S-P9:** el controlador `pagos.ts` repetía la lógica de manejo de errores HTTP que ya había sido centralizada en `manejo_errores.ts`.
+
+**Prueba antes del cambio:**
+
+Se incorporó una prueba en `backend/pruebas/errores.test.mjs` para simular un error inesperado en el controlador de Pagos.
+
+La prueba verificó que:
+- La respuesta utilizara el estado HTTP 500.
+- El cliente recibiera un mensaje genérico, sin información interna.
+- El error original quedara registrado mediante `console.error`.
+
+Antes de la corrección, la última comprobación falló porque el controlador no registraba el error.
+
+**Resultado inicial:**
+- 37 pruebas ejecutadas.
+- 36 aprobadas.
+- 1 fallida (esperada).
+
+**Refactoring aplicado:**
+
+En `backend/src/controladores/pagos.ts` se reemplazó el bloque `catch` repetido por una llamada a la función compartida `manejarError(respuesta, error)`.
+
+La función, definida en `backend/src/compartidos/manejo_errores.ts`, centraliza el tratamiento de las excepciones HTTP y registra los errores inesperados.
+
+El cambio permitió eliminar código duplicado y mantener un criterio uniforme para responder ante errores.
+
+No se modificaron las reglas de negocio, las operaciones de Pagos ni los refactorings previamente desarrollados por Mauro.
+
+**Pruebas después del cambio:**
+
+Se ejecutó nuevamente `npm test`, incluyendo las suites de Permisos, HTTP, Errores y Pagos.
+
+**Resultado final:**
+- Compilación TypeScript correcta.
+- 37 pruebas ejecutadas.
+- 37 aprobadas.
+- 0 fallidas.
+
+La nueva prueba confirmó que los errores inesperados se registran sin revelar sus detalles al cliente. Las pruebas existentes continuaron pasando.
+
+**Evidencias:**
+
+Antes:
+- `evidencias/refactor_transversal/pruebas_pagos_errores_antes.txt`
+- `evidencias/refactor_transversal/pruebas_pagos_errores_antes.png`
+
+Después:
+- `evidencias/refactor_transversal/pruebas_pagos_errores_despues.txt`
+- `evidencias/refactor_transversal/pruebas_pagos_errores_despues.png`
+
+**Estado:** S-P3 y S-P9 corregidos en el controlador de Pagos.

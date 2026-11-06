@@ -10,6 +10,10 @@ const { crearGestorResumen } = await import(
   '../dist/controladores/resumen.js'
 )
 
+const { crearGestorPagos } = await import(
+  '../dist/controladores/pagos.js'
+)
+
 function simularRespuesta() {
   let estado
   let cuerpo
@@ -201,4 +205,47 @@ test('resumen muestra solo los turnos propios de un entrenador con varios roles'
 
   assert.equal(turnos.length, 1)
   assert.equal(turnos[0].horaInicio, '09:00')
+})
+
+test('pagos registra errores inesperados sin exponer detalles', async () => {
+  const { respuesta, resultado } = simularRespuesta()
+  const fallo = new Error('Falla interna simulada en pagos')
+  const registros = []
+
+  const gestionar = crearGestorPagos({
+    usuario: async () => ({ rol: 'ADMIN' }),
+    conectar: async () => {
+      throw fallo
+    }
+  })
+
+  const consoleErrorOriginal = console.error
+  console.error = (...argumentos) => {
+    registros.push(argumentos)
+  }
+
+  try {
+    await gestionar(
+      { method: 'GET', url: '/api/pagos' },
+      respuesta
+    )
+  } finally {
+    console.error = consoleErrorOriginal
+  }
+
+  assert.equal(resultado().estado, 500)
+  assert.equal(
+    resultado().cuerpo.mensaje,
+    'No pudimos completar la operación. Intentá nuevamente.'
+  )
+
+  assert.ok(
+    !JSON.stringify(resultado().cuerpo).includes(fallo.message),
+    'No se deben exponer detalles internos'
+  )
+
+  assert.ok(
+    registros.some(argumentos => argumentos.includes(fallo)),
+    'El error inesperado debe registrarse'
+  )
 })
