@@ -1,3 +1,4 @@
+
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Db } from 'mongodb'
 import { conectarDB } from '../db.ts'
@@ -7,6 +8,7 @@ import { ErrorHTTP, responder } from '../compartidos/http.ts'
 import { diasSemana } from '../compartidos/reglas.ts'
 import type { Turno } from '../compartidos/modelos.ts'
 import { manejarError } from '../compartidos/manejo_errores.ts'
+import { tieneRol } from '../servicios/permisos.ts'
 
 type Dependencias = {
     conectar: typeof conectarDB
@@ -22,7 +24,7 @@ function diaDeHoy(): string {
     })
     const normalizado = nombre
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/[\u0300-\u036f]/g, '')
         .toUpperCase()
     return diasSemana.includes(normalizado) ? normalizado : 'LUNES'
 }
@@ -40,7 +42,8 @@ async function resumenTurnosHoy(db: Db, personal: UsuarioSesion): Promise<{
         .sort({ horaInicio: 1 })
         .toArray()
 
-    const turnosFiltrados = personal.rol === 'ENTRENADOR'
+    const turnosFiltrados = tieneRol(personal, ['ENTRENADOR'])
+        && !tieneRol(personal, ['ADMIN'])
         ? turnosDelDia.filter(t => t.entrenadorId.toHexString() === personal.id)
         : turnosDelDia
 
@@ -66,7 +69,6 @@ async function resumenAdministrativo(db: Db) {
     const limiteProximas = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000)
 
     const clientesActivos = await db.collection('clientes').countDocuments({ activo: true })
-
     const pagosDelMes = await db.collection('pagos')
         .find({ estado: 'PAGADO', fechaPago: { $gte: inicioDeMes } })
         .toArray()
@@ -78,7 +80,6 @@ async function resumenAdministrativo(db: Db) {
             { estado: 'PENDIENTE', fechaVencimiento: { $lt: ahora } },
         ],
     })
-
     const cuotasProximasAVencer = await db.collection('pagos').countDocuments({
         estado: 'PENDIENTE',
         fechaVencimiento: { $gte: ahora, $lte: limiteProximas },
@@ -89,7 +90,9 @@ async function resumenAdministrativo(db: Db) {
 
 async function consultarResumen(db: Db, personal: UsuarioSesion, respuesta: ServerResponse): Promise<void> {
     const turnosHoy = await resumenTurnosHoy(db, personal)
-    const administrativo = personal.rol === 'ADMIN' ? await resumenAdministrativo(db) : null
+    const administrativo = tieneRol(personal, ['ADMIN'])
+        ? await resumenAdministrativo(db)
+        : null
 
     responder(respuesta, 200, {
         resumen: {
@@ -106,7 +109,8 @@ export function crearGestorResumen(dependencias: Dependencias = {
         try {
             const personal = await dependencias.usuario(solicitud)
             if (!personal) throw new ErrorHTTP(401, 'Iniciá sesión para continuar.')
-            if (personal.rol !== 'ADMIN' && personal.rol !== 'ENTRENADOR')
+
+            if (!tieneRol(personal, ['ADMIN', 'ENTRENADOR']))
                 throw new ErrorHTTP(403, 'No tenés permiso para acceder al resumen.')
 
             if (solicitud.method !== 'GET' || solicitud.url?.split('?')[0] !== '/api/resumen')

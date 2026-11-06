@@ -107,3 +107,98 @@ test('resumen registra los errores inesperados', async () => {
     'El error inesperado deberia registrarse'
   )
 })
+
+test('resumen permite acceder a una cuenta con varios roles', async () => {
+  const { respuesta, resultado } = simularRespuesta()
+
+  const baseSimulada = {
+    collection(nombre) {
+      if (nombre === 'turnos') {
+        return {
+          find: () => ({
+            sort: () => ({ toArray: async () => [] })
+          })
+        }
+      }
+
+      if (nombre === 'clientes') {
+        return { countDocuments: async () => 0 }
+      }
+
+      if (nombre === 'pagos') {
+        return {
+          find: () => ({ toArray: async () => [] }),
+          countDocuments: async () => 0
+        }
+      }
+
+      throw new Error('Coleccion no simulada')
+    }
+  }
+
+  const gestionar = crearGestorResumen({
+    usuario: async () => ({
+      id: 'admin-prueba',
+      rol: ['ENTRENADOR', 'ADMIN']
+    }),
+    conectar: async () => baseSimulada
+  })
+
+  await gestionar(
+    { method: 'GET', url: '/api/resumen' },
+    respuesta
+  )
+
+  assert.equal(resultado().estado, 200)
+  assert.ok(resultado().cuerpo.resumen.administrativo)
+})
+
+test('resumen muestra solo los turnos propios de un entrenador con varios roles', async () => {
+  const { respuesta, resultado } = simularRespuesta()
+
+  const turnosSimulados = [
+    {
+      entrenadorId: { toHexString: () => 'entrenador-1' },
+      horaInicio: '09:00',
+      horaFin: '10:00',
+      capacidad: 5,
+      clientes: []
+    },
+    {
+      entrenadorId: { toHexString: () => 'entrenador-2' },
+      horaInicio: '10:00',
+      horaFin: '11:00',
+      capacidad: 5,
+      clientes: []
+    }
+  ]
+
+  const gestionar = crearGestorResumen({
+    usuario: async () => ({
+      id: 'entrenador-1',
+      rol: ['ENTRENADOR', 'USUARIO']
+    }),
+    conectar: async () => ({
+      collection: () => ({
+        find: () => ({
+          sort: () => ({
+            toArray: async () => turnosSimulados
+          })
+        })
+      })
+    })
+  })
+
+  await gestionar(
+    { method: 'GET', url: '/api/resumen' },
+    respuesta
+  )
+
+  assert.equal(resultado().estado, 200)
+  assert.equal(resultado().cuerpo.resumen.administrativo, null)
+
+  const turnos = resultado().cuerpo.resumen.turnosHoy.turnos
+
+  assert.equal(turnos.length, 1)
+  assert.equal(turnos[0].horaInicio, '09:00')
+})

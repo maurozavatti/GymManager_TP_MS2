@@ -236,3 +236,44 @@ S-T01 y S-T02 están corregidos parcialmente. El manejador compartido ya funcion
 - `evidencias/refactor_transversal/pruebas_errores_antes.txt`
 - `evidencias/refactor_transversal/pruebas_manejo_errores_despues.txt`
 - `evidencias/refactor_transversal/pruebas_manejo_errores_despues.png`
+
+### 5.3. F-T01 — Corrección de permisos con roles múltiples (S-T04)
+
+**Problema detectado:**
+El controlador `resumen.ts` comparaba directamente el rol del usuario con `ADMIN` y `ENTRENADOR`. Esto provocaba errores de autorización cuando una cuenta tenía varios roles almacenados en un arreglo.
+
+**Corrección aplicada:**
+Se reemplazaron las comparaciones directas por llamadas a `tieneRol`, función que ya existía en `permisos.ts`.
+
+Se modificaron tres aspectos:
+
+- La validación de acceso al resumen.
+- La autorización para consultar indicadores administrativos.
+- El filtrado de turnos para entrenadores sin permisos de administrador.
+
+De esta manera, una cuenta con varios roles puede utilizar los permisos que realmente tiene, sin permitir que un entrenador acceda a turnos ajenos.
+
+**Mejora obtenida:**
+Se unificó el criterio de autorización, evitando comparaciones inconsistentes y mejorando la seguridad del controlador.
+
+**Verificación:**
+Se incorporaron pruebas para comprobar el comportamiento con varios roles.
+
+Antes de la corrección, una prueba fallaba porque una cuenta con roles `ENTRENADOR` y `ADMIN` recibía 403 en lugar de 200.
+
+Después del cambio, las 22 pruebas existentes pasaron correctamente. Finalmente, se agregó una prueba para verificar que un entrenador con varios roles solamente pueda consultar sus propios turnos.
+
+**Resultado final:** 23 pruebas aprobadas, ninguna fallida y compilación de TypeScript sin errores.
+
+Las pruebas utilizan dependencias simuladas y no requieren conexión a MongoDB.
+
+**Estado:**
+S-T04 corregido en `resumen.ts`. Las autorizaciones de los demás controladores deberán verificarse durante la integración grupal.
+
+**Evidencias:**
+- `evidencias/refactor_transversal/pruebas_roles_antes.txt`
+- `evidencias/refactor_transversal/pruebas_roles_antes.png`
+- `evidencias/refactor_transversal/pruebas_roles_despues.txt`
+- `evidencias/refactor_transversal/pruebas_roles_despues.png`
+- `evidencias/refactor_transversal/pruebas_roles_final.txt`
+- `evidencias/refactor_transversal/pruebas_roles_final.png`

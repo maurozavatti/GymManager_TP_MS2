@@ -135,3 +135,24 @@ test('Un fallo de conexion se propaga sin convertirlo en 401', async () => {
     (error) => error === fallo,
   )
 })
+
+test('Una cuenta con varios roles puede acceder como ADMIN', async () => {
+  const usuario = await exigirRol(
+    conSesion,
+    ['ADMIN'],
+    conectarSimulado(['ENTRENADOR', 'ADMIN'])
+  )
+
+  assert.deepEqual(usuario.rol, ['ENTRENADOR', 'ADMIN'])
+})
+
+test('Una cuenta con varios roles recibe 403 si no tiene permiso', async () => {
+  await assert.rejects(
+    () => exigirRol(
+      conSesion,
+      ['ADMIN'],
+      conectarSimulado(['USUARIO', 'ENTRENADOR'])
+    ),
+    (error) => error.estado === 403
+  )
+})
