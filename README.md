@@ -64,6 +64,7 @@ GymManager_TP_MS2/
 │   ├── package.json
 │   └── tsconfig.json
 ├── docs/
+│   ├── CHECKLIST_CODE_REVIEW.md
 │   ├── refactoring_transversal.md
 │   └── turnos.md
 ├── evidencias/
@@ -147,6 +148,7 @@ Algunas pruebas simulan errores internos que aparecen en la consola; forman part
 - [Evidencias de Turnos](evidencias/turnos/).
 - [Evidencias del trabajo transversal](evidencias/refactor_transversal/).
 - [Evidencias de integración final](evidencias/integracion_final/).
+- [Checklist de code review](docs/CHECKLIST_CODE_REVIEW.md)
 
 El informe PDF grupal reúne el diagnóstico general, los refactorings de los tres integrantes, la comparación antes/después, la revisión técnica, las conclusiones y la declaración de uso de herramientas de IA.
 
@@ -158,7 +160,7 @@ Los cambios se trabajaron en ramas individuales y se revisaron entre los integra
 - [PR #2 — Componentes transversales](https://github.com/maurozavatti/GymManager_TP_MS2/pull/2)
 - [PR #3 — Turnos](https://github.com/maurozavatti/GymManager_TP_MS2/pull/3)
 
-Las observaciones, correcciones y aprobaciones pueden consultarse en esos Pull Requests. **Pendiente de cierre:** incorporar el checklist técnico grupal en `docs/`, con criterios de revisión y aceptación, tal como pide la consigna.
+Las observaciones, correcciones y aprobaciones pueden consultarse en esos Pull Requests. Los criterios de revisión, las observaciones, las correcciones realizadas y los resultados de los Pull Requests se encuentran documentados en el Checklist de code review
 
 ## Versiones y tags
 
