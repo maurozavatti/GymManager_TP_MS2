@@ -1,0 +1,65 @@
+
+> gymmanager-backend@0.1.0 test
+> npm run build && node --test pruebas/permisos.test.mjs pruebas/http.test.mjs pruebas/errores.test.mjs pruebas/pagos.test.mjs pruebas/turnos.test.mjs
+
+
+> gymmanager-backend@0.1.0 build
+> tsc
+
+Error: Detalle interno de la base
+    at Object.conectar (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/errores.test.mjs:64:13)
+    at gestionarResumen (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/dist/controladores/resumen.js:91:43)
+    at async TestContext.<anonymous> (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/errores.test.mjs:68:3)
+    at async Test.run (node:internal/test_runner/test:1054:7)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+✔ resumen responde 401 cuando no hay sesion (4.9581ms)
+✔ resumen responde 500 sin exponer errores internos (2.352ms)
+✔ resumen registra los errores inesperados (0.5897ms)
+✔ resumen permite acceder a una cuenta con varios roles (42.1277ms)
+✔ resumen muestra solo los turnos propios de un entrenador con varios roles (1.8615ms)
+✔ pagos registra errores inesperados sin exponer detalles (0.6956ms)
+✔ ErrorHTTP conserva estado, mensaje y campos (2.75ms)
+✔ responder devuelve el estado y los datos en JSON (1.548ms)
+✔ leerJSON acepta un objeto JSON valido (6.4875ms)
+✔ leerJSON rechaza contenido que no es JSON con 415 (1.2701ms)
+✔ texto valida y elimina espacios (0.4933ms)
+✔ entero acepta valores dentro del rango y rechaza invalidos (0.3348ms)
+✔ identificador acepta un ObjectId valido y rechaza invalidos (0.907ms)
+✔ fechaArgentina acepta fechas validas y rechaza invalidas (40.5133ms)
+✔ Sin sesion rechaza con 401 (7.678ms)
+✔ ENTRENADOR recibe 403 en pagos (0.4272ms)
+✔ ADMIN registra un pago ya pagado (4.5686ms)
+✔ ADMIN registra una cuota pendiente con vencimiento (47.5537ms)
+✔ Una cuota pendiente sin vencimiento da 400 (3.6455ms)
+✔ Un tipo de pago invalido da 400 (1.6501ms)
+✔ Un monto invalido da 400 (5.6384ms)
+✔ Un cliente inexistente da 404 (2.3011ms)
+✔ Marcar como pagado un pago pendiente da 200 (2.9604ms)
+✔ Marcar como pagado uno ya pagado da 409 (2.695ms)
+✔ Listar pagos responde 200 y actualiza los vencidos (efecto S-P2) (1.2666ms)
+✔ Una ruta inexistente da 404 (0.8112ms)
+✔ ADMIN con rol en lista accede a pagos (0.2857ms)
+✔ Sin cookie rechaza con 401 sin consultar la base (8.055ms)
+✔ Una cookie mal formada rechaza con 401 (0.4062ms)
+✔ Una sesion inexistente rechaza con 401 (1.6301ms)
+✔ Una cuenta inactiva rechaza con 401 (0.7533ms)
+✔ ADMIN puede acceder a una operacion de ADMIN (0.7712ms)
+✔ ENTRENADOR puede acceder cuando su rol esta permitido (0.3215ms)
+✔ USUARIO recibe 403 en una operacion exclusiva de ADMIN (0.487ms)
+✔ Un fallo de conexion se propaga sin convertirlo en 401 (0.4269ms)
+✔ Una cuenta con varios roles puede acceder como ADMIN (1.9363ms)
+✔ Una cuenta con varios roles recibe 403 si no tiene permiso (1.3377ms)
+✔ Sin sesión rechaza con 401 (12.0235ms)
+✔ Un entrenador puede modificar sus propios turnos (5.3649ms)
+✔ Un entrenador no puede modificar turnos ajenos (1.6972ms)
+✔ Un entrenador con rol en lista puede modificar sus propios turnos (2.7848ms)
+✔ Un entrenador con rol en lista no puede modificar turnos ajenos (1.8604ms)
+✔ Un usuario sin permisos recibe 403 (0.5552ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 43
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 913.8606

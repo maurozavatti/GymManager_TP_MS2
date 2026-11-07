@@ -1,0 +1,74 @@
+PS C:\Users\Fernando A\Documents\Universidad\Metodologia\TP\GymManager_TP_MS2\backend> npm test
+
+> gymmanager-backend@0.1.0 test
+> npm run build && node --test pruebas/permisos.test.mjs pruebas/http.test.mjs pruebas/errores.test.mjs pruebas/pagos.test.mjs pruebas/turnos.test.mjs
+
+
+> gymmanager-backend@0.1.0 build
+> tsc
+
+Error: Detalle interno de la base
+    at Object.conectar (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/errores.test.mjs:64:13)
+    at gestionarResumen (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/dist/controladores/resumen.js:91:43)
+    at async TestContext.<anonymous> (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/errores.test.mjs:68:3)
+    at async Test.run (node:internal/test_runner/test:1054:7)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+✔ resumen responde 401 cuando no hay sesion (2.2959ms)
+✔ resumen responde 500 sin exponer errores internos (2.6392ms)
+✔ resumen registra los errores inesperados (0.5442ms)
+✔ resumen permite acceder a una cuenta con varios roles (47.9961ms)
+✔ resumen muestra solo los turnos propios de un entrenador con varios roles (1.3249ms)
+✔ pagos registra errores inesperados sin exponer detalles (0.6648ms)
+✔ ErrorHTTP conserva estado, mensaje y campos (2.9266ms)
+✔ responder devuelve el estado y los datos en JSON (0.4872ms)
+✔ leerJSON acepta un objeto JSON valido (6.1794ms)
+✔ leerJSON rechaza contenido que no es JSON con 415 (0.9169ms)
+✔ texto valida y elimina espacios (0.3264ms)
+✔ entero acepta valores dentro del rango y rechaza invalidos (0.2111ms)
+✔ identificador acepta un ObjectId valido y rechaza invalidos (0.9005ms)
+✔ fechaArgentina acepta fechas validas y rechaza invalidas (40.1227ms)
+✔ Sin sesion rechaza con 401 (12.0625ms)
+✔ ENTRENADOR recibe 403 en pagos (0.6164ms)
+✔ ADMIN registra un pago ya pagado (6.8001ms)
+✔ ADMIN registra una cuota pendiente con vencimiento (44.3358ms)
+✔ Una cuota pendiente sin vencimiento da 400 (2.3446ms)
+✔ Un tipo de pago invalido da 400 (1.2322ms)
+✔ Un monto invalido da 400 (5.4868ms)
+✔ Un cliente inexistente da 404 (1.0287ms)
+✔ Marcar como pagado un pago pendiente da 200 (2.7515ms)
+✔ Marcar como pagado uno ya pagado da 409 (1.3408ms)
+✔ Listar pagos responde 200 y actualiza los vencidos (efecto S-P2) (0.6084ms)
+✔ Una ruta inexistente da 404 (0.7849ms)
+✔ ADMIN con rol en lista accede a pagos (0.2746ms)
+✔ Sin cookie rechaza con 401 sin consultar la base (6.9458ms)
+✔ Una cookie mal formada rechaza con 401 (0.4621ms)
+✔ Una sesion inexistente rechaza con 401 (1.267ms)
+✔ Una cuenta inactiva rechaza con 401 (0.3435ms)
+✔ ADMIN puede acceder a una operacion de ADMIN (0.5221ms)
+✔ ENTRENADOR puede acceder cuando su rol esta permitido (0.2017ms)
+✔ USUARIO recibe 403 en una operacion exclusiva de ADMIN (0.3524ms)
+✔ Un fallo de conexion se propaga sin convertirlo en 401 (0.2463ms)
+✔ Una cuenta con varios roles puede acceder como ADMIN (1.4245ms)
+✔ Una cuenta con varios roles recibe 403 si no tiene permiso (1.3143ms)
+Error: Detalle privado de la conexión
+    at Object.conectar (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/turnos.test.mjs:201:13)
+    at gestionarTurnos (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/dist/controladores/turnos.js:249:43)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async TestContext.<anonymous> (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/turnos.test.mjs:209:3)
+    at async Test.run (node:internal/test_runner/test:1054:7)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+✔ Sin sesión rechaza con 401 (9.7935ms)
+✔ Un entrenador puede modificar sus propios turnos (6.1094ms)
+✔ Un entrenador no puede modificar turnos ajenos (1.8044ms)
+✔ Un entrenador con rol en lista puede modificar sus propios turnos (2.3262ms)
+✔ Un entrenador con rol en lista no puede modificar turnos ajenos (1.745ms)
+✔ Un usuario sin permisos recibe 403 (0.5216ms)
+✔ Un error inesperado responde 500 sin exponer detalles internos (3.7228ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 942.3992
