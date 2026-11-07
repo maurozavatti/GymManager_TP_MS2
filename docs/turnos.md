@@ -228,4 +228,27 @@ El trabajo realizado permitió mejorar la calidad del controlador de turnos, sol
 
 La incorporación de pruebas de caracterización permitió verificar que los cambios no alteraran el comportamiento esperado del sistema. Además, el uso de commits independientes facilitó el seguimiento de las modificaciones y su posterior revisión por parte del equipo.
 
+---
+
+## 11. Declaración de uso de Inteligencia Artificial
+
+Durante el desarrollo de este trabajo práctico se utilizó ChatGPT como herramienta de apoyo para resolver dudas técnicas, comprender los problemas detectados en el código y analizar posibles soluciones de refactorización.
+
+Su utilización fue principalmente como asistencia durante el proceso de desarrollo. Se consultó para:
+
+- Comprender el funcionamiento del controlador de turnos y sus responsabilidades.
+- Identificar y analizar posibles *code smells*.
+- Comprender los errores relacionados con la validación de roles y permisos.
+- Evaluar alternativas para centralizar el manejo de errores.
+- Aplicar la técnica de refactorización *Extract Method*.
+- Elaborar y revisar pruebas automatizadas de caracterización.
+- Interpretar los resultados obtenidos al ejecutar las pruebas.
+- Comprender el funcionamiento de Git, los commits y el proceso de publicación de la rama de trabajo.
+
+Las sugerencias proporcionadas por la herramienta fueron revisadas y aplicadas durante el desarrollo, verificando los cambios mediante la compilación del proyecto y la ejecución de las pruebas automatizadas.
+
+La herramienta se utilizó como recurso de consulta y aprendizaje, mientras que las modificaciones, verificaciones y decisiones finales fueron realizadas por el integrante responsable del módulo.
+
+**Herramienta utilizada:** ChatGPT (OpenAI).
+
 En conclusión, se logró mejorar la mantenibilidad, legibilidad y confiabilidad del módulo de turnos, manteniendo su funcionamiento y respetando la estrategia de trabajo mediante ramas independientes.
