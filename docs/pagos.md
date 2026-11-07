@@ -292,4 +292,98 @@ Las pruebas usan dependencias simuladas, por lo que no requieren conexión a Mon
 
 **Verificación:** `npm test`: 20 aprobadas, 0 fallidas, 1 pendiente conocida.
 
-**Commit:** `999361e` — `refactor(pagos):
+**Commit:** `999361e` — `refactor(pagos): constantes para los estados de pago (S-P6)`.
+
+### 5.3. R-3 — Extraer la lectura y la construcción del pago (S-P4 y S-P5)
+
+**Problema detectado:** `registrarPago` mezclaba validación, consulta, decisión del estado y persistencia, con dos `insertOne` casi idénticos.
+
+**Refactoring aplicado:** Extract Method e Introduce Parameter Object.
+
+- `leerDatosPago`: valida la entrada y devuelve un objeto `DatosPago`.
+- `armarDocumentoPago`: arma el documento según el pago esté pagado o pendiente.
+- `registrarPago`: queda con el flujo de leer, buscar al cliente, insertar con un solo `insertOne` y responder.
+
+**Mejora obtenida:** Se separaron responsabilidades y se eliminó la duplicación. El orden de los errores se conserva: el 404 del cliente sigue antes del 400 por falta de vencimiento.
+
+**Verificación:** `npm test`: 20 aprobadas, 0 fallidas, 1 pendiente conocida.
+
+**Commit:** `457b295` — `refactor(pagos): extraer leerDatosPago y armarDocumentoPago de registrarPago (S-P4, S-P5)`.
+
+### 5.4. R-4 — Mover reglas de pagos a un servicio (S-P4 y S-P8)
+
+**Problema detectado:** La regla de vencimiento y la constante de estados vivían dentro del controlador HTTP.
+
+**Refactoring aplicado:** Move Method. Se creó `backend/src/servicios/pagos.ts`, que exporta `estadosPago` y `promoverVencidos`, y el controlador los importa.
+
+**Mejora obtenida:** Las reglas de negocio quedaron fuera del controlador.
+
+**Alcance:** No resuelve S-P2. La consulta sigue escribiendo, porque eliminar ese efecto cambiaría el comportamiento.
+
+**Verificación:** `npm test`: 20 aprobadas, 0 fallidas, 1 pendiente conocida.
+
+**Commit:** `053924b` — `refactor(pagos): mover promoverVencidos y estadosPago a servicios/pagos (S-P4, S-P8)`.
+
+### 5.5. F-1 — Corrección de autorización con roles en lista (S-P1)
+
+**Problema detectado:** `pagos.ts` comparaba el rol con un texto. Las cuentas con rol en formato lista recibían 403, aunque fueran administradoras.
+
+**Corrección aplicada:** Se reemplazó `personal.rol !== 'ADMIN'` por `!tieneRol(personal, ['ADMIN'])`, función que ya existía en `permisos.ts`.
+
+Esta corrección **no es un refactoring**, porque cambia el resultado para un caso (cuentas con roles en lista). Por eso se hizo en un commit separado.
+
+**Verificación:** El caso 13 pasó de pendiente conocido a aprobado. Se le quitó la marca `todo`. Los casos 1 a 12 mantienen su resultado.
+
+**Resultado final:** 21 pruebas aprobadas, 0 fallidas, 0 pendientes. Compilación sin errores.
+
+**Commit:** `116b03f` — `fix(pagos): usar tieneRol para aceptar cuentas con roles en formato lista (S-P1)`.
+
+**Evidencia:** `evidencias/tests-pagos-despues.txt`
+
+## 6. Estado y pendientes
+
+| Smell | Estado |
+|---|---|
+| S-P1 | Corregido en `pagos.ts` (F-1). Pendiente en otros controladores: ver `docs/turnos.md` y `docs/refactoring_transversal.md`. |
+| S-P3 | Corregido en `pagos.ts` por la rama transversal (R-T04, commit `6600a07`, documentado en `docs/refactoring_transversal.md`). |
+| S-P4 y S-P5 | Resueltos (R-3). |
+| S-P6 | Resuelto (R-2). |
+| S-P8 | Mejorado parcialmente (R-4). Las consultas siguen en el controlador. |
+| S-P9 | Corregido en `pagos.ts` por la rama transversal (R-T04). |
+| S-P10 | Resuelto (R-1). |
+| S-P2 | Pendiente. Resolverlo cambia el comportamiento. |
+| S-P7 | Pendiente. Falta definir el modelo `Pago`. |
+
+## 7. Resumen de pruebas antes y después
+
+| Etapa | Pruebas aprobadas | Pruebas fallidas | Pendientes | Resultado |
+|---|---:|---:|---:|---|
+| Estado inicial | 8 | 0 | 0 | Pruebas originales de permisos |
+| Con las 13 pruebas de pagos | 20 | 0 | 1 | Caso 13 documenta S-P1 |
+| R-1 | 20 | 0 | 1 | Sin regresiones |
+| R-2 | 20 | 0 | 1 | Sin regresiones |
+| R-3 | 20 | 0 | 1 | Sin regresiones |
+| R-4 | 20 | 0 | 1 | Sin regresiones |
+| F-1 | 21 | 0 | 0 | Corrección verificada |
+
+Los casos 1 a 12 mantuvieron su resultado durante los cuatro refactorings, lo que muestra que el comportamiento externo no cambió. El caso 13 pasó de pendiente conocido a aprobado luego de la corrección F-1.
+
+Las pruebas utilizan dependencias simuladas y no requieren una conexión activa a MongoDB.
+
+## 8. Conclusión individual
+
+En este módulo escribí primero las pruebas de caracterización y después apliqué los refactorings de a uno, verificando que nada cambiara. Aprendí que un refactoring no puede cambiar el comportamiento, y que cuando encontramos el defecto de los roles había que corregirlo en un commit aparte. Quedan pendientes el efecto secundario al listar pagos y el modelo de datos de Pago
+
+## 9. Declaración individual de uso de inteligencia artificial
+
+**Herramienta utilizada:** Claude, de Anthropic.
+
+**Propósito:** Se utilizó como asistencia durante el análisis del código, la detección de code smells, el análisis de SOLID y Clean Code, el diseño de los casos de prueba y la escritura del código de la suite `pagos.test.mjs`, la propuesta del código de los refactorings R-1 a R-4 y de la corrección F-1, y la organización de la documentación técnica.
+
+**Grado de utilización:** Alto. La herramienta propuso y redactó los cambios, las pruebas y la documentación.
+
+Cada cambio se aplicó en el repositorio en un commit propio, se ejecutó la suite de pruebas antes y después, y se verificó que el comportamiento se mantuviera. La corrección F-1 se hizo en un commit separado por modificar el comportamiento. Los defectos de roles se confirmaron además con el autor del módulo de cuentas.
+
+**Evidencia:** Las conversaciones completas se encuentran en el ZIP anexo.
+
+**Responsabilidad:** La selección de los cambios incorporados, su ejecución y la verificación de los resultados estuvieron a mi cargo.
