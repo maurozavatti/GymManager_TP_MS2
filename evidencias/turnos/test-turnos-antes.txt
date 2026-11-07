@@ -1,0 +1,85 @@
+
+> gymmanager-backend@0.1.0 test
+> npm run build && node --test pruebas/permisos.test.mjs pruebas/http.test.mjs pruebas/errores.test.mjs pruebas/pagos.test.mjs pruebas/turnos.test.mjs
+
+
+> gymmanager-backend@0.1.0 build
+> tsc
+
+Error: Detalle interno de la base
+    at Object.conectar (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/errores.test.mjs:64:13)
+    at gestionarResumen (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/dist/controladores/resumen.js:91:43)
+    at async TestContext.<anonymous> (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/errores.test.mjs:68:3)
+    at async Test.run (node:internal/test_runner/test:1054:7)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+✔ resumen responde 401 cuando no hay sesion (2.5679ms)
+✔ resumen responde 500 sin exponer errores internos (2.5511ms)
+✔ resumen registra los errores inesperados (0.6246ms)
+✔ resumen permite acceder a una cuenta con varios roles (73.0211ms)
+✔ resumen muestra solo los turnos propios de un entrenador con varios roles (1.9614ms)
+✔ pagos registra errores inesperados sin exponer detalles (1.1679ms)
+✔ ErrorHTTP conserva estado, mensaje y campos (4.4899ms)
+✔ responder devuelve el estado y los datos en JSON (0.5303ms)
+✔ leerJSON acepta un objeto JSON valido (9.3032ms)
+✔ leerJSON rechaza contenido que no es JSON con 415 (1.6903ms)
+✔ texto valida y elimina espacios (0.5462ms)
+✔ entero acepta valores dentro del rango y rechaza invalidos (0.3861ms)
+✔ identificador acepta un ObjectId valido y rechaza invalidos (0.9603ms)
+✔ fechaArgentina acepta fechas validas y rechaza invalidas (84.8353ms)
+✔ Sin sesion rechaza con 401 (10.1309ms)
+✔ ENTRENADOR recibe 403 en pagos (0.7091ms)
+✔ ADMIN registra un pago ya pagado (7.7377ms)
+✔ ADMIN registra una cuota pendiente con vencimiento (46.477ms)
+✔ Una cuota pendiente sin vencimiento da 400 (2.592ms)
+✔ Un tipo de pago invalido da 400 (1.9656ms)
+✔ Un monto invalido da 400 (4.8798ms)
+✔ Un cliente inexistente da 404 (1.3714ms)
+✔ Marcar como pagado un pago pendiente da 200 (2.3945ms)
+✔ Marcar como pagado uno ya pagado da 409 (4.4289ms)
+✔ Listar pagos responde 200 y actualiza los vencidos (efecto S-P2) (1.136ms)
+✔ Una ruta inexistente da 404 (1.4528ms)
+✔ ADMIN con rol en lista accede a pagos (1.3599ms)
+✔ Sin cookie rechaza con 401 sin consultar la base (8.1763ms)
+✔ Una cookie mal formada rechaza con 401 (0.3755ms)
+✔ Una sesion inexistente rechaza con 401 (1.4878ms)
+✔ Una cuenta inactiva rechaza con 401 (0.6169ms)
+✔ ADMIN puede acceder a una operacion de ADMIN (0.9326ms)
+✔ ENTRENADOR puede acceder cuando su rol esta permitido (0.3162ms)
+✔ USUARIO recibe 403 en una operacion exclusiva de ADMIN (0.5234ms)
+✔ Un fallo de conexion se propaga sin convertirlo en 401 (0.3663ms)
+✔ Una cuenta con varios roles puede acceder como ADMIN (2.0232ms)
+✔ Una cuenta con varios roles recibe 403 si no tiene permiso (1.1286ms)
+✔ Sin sesión rechaza con 401 (8.5115ms)
+✔ Un entrenador puede modificar sus propios turnos (5.6919ms)
+✔ Un entrenador no puede modificar turnos ajenos (1.6657ms)
+✖ Un entrenador con rol en lista puede modificar sus propios turnos (2.2245ms)
+✔ Un entrenador con rol en lista no puede modificar turnos ajenos (0.5763ms)
+✔ Un usuario sin permisos recibe 403 (0.3699ms)
+ℹ tests 43
+ℹ suites 0
+ℹ pass 42
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 987.5216
+
+✖ failing tests:
+
+test at pruebas\turnos.test.mjs:141:1
+✖ Un entrenador con rol en lista puede modificar sus propios turnos (2.2245ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  403 !== 200
+  
+      at TestContext.<anonymous> (file:///C:/Users/Fernando%20A/Documents/Universidad/Metodologia/TP/GymManager_TP_MS2/backend/pruebas/turnos.test.mjs:155:10)
+      at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+      at async Test.run (node:internal/test_runner/test:1054:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:744:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 403,
+    expected: 200,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
