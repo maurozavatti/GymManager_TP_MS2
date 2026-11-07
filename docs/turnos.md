@@ -3,7 +3,7 @@
 ## 1. Información general
 
 - **Proyecto:** GymManager – Metodología de Sistemas II.
-- **Integrante:** Integrante B.
+- **Integrante:** Fernando Joaquín Aguillón Basabilbaso.
 - **Rama de trabajo:** `feature/turnos`.
 - **Archivo principal modificado:** `backend/src/controladores/turnos.ts`.
 - **Archivo de pruebas:** `backend/pruebas/turnos.test.mjs`.
